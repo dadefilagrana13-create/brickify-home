@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brickify Home — LEGO Project Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>body{font-family:'Inter',sans-serif;}</style>
+</head>
+<body class="bg-yellow-950 text-white min-h-screen">
+<nav class="border-b border-yellow-900 px-6 py-4 flex items-center justify-between bg-yellow-900/30">
+  <div class="flex items-center gap-2"><span class="text-2xl">🧱</span><span class="font-bold text-xl">Brickify Home</span></div>
+  <div class="flex gap-2">
+    <button onclick="showTab('create')" class="tab-btn px-3 py-2 rounded-lg text-sm bg-yellow-500 text-black font-bold" data-tab="create">Create</button>
+    <button onclick="showTab('gallery')" class="tab-btn px-3 py-2 rounded-lg text-sm text-yellow-300" data-tab="gallery">Gallery</button>
+    <button onclick="showTab('instructions')" class="tab-btn px-3 py-2 rounded-lg text-sm text-yellow-300" data-tab="instructions">How It Works</button>
+  </div>
+</nav>
+
+<!-- CREATE -->
+<div id="tab-create" class="p-6">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="text-3xl font-black mb-2">Turn anything into LEGO 🧱</h1>
+    <p class="text-yellow-200 mb-8">Describe what you want to build and get a complete LEGO instructions guide.</p>
+    <div class="grid grid-cols-2 gap-6">
+      <div class="space-y-4">
+        <div>
+          <label class="text-sm text-yellow-300 block mb-1">What do you want to Brickify?</label>
+          <textarea id="b-description" rows="4" placeholder="e.g. My house at Via Roma 5, a spaceship, my dog Rex, the Eiffel Tower..." class="w-full bg-yellow-900/30 border border-yellow-700 rounded-xl px-4 py-3 text-sm resize-none focus:outline-none focus:border-yellow-400"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-sm text-yellow-300 block mb-1">Scale</label>
+            <select id="b-scale" class="w-full bg-yellow-900/30 border border-yellow-700 rounded-xl px-3 py-2 text-sm">
+              <option>Mini (100-500 bricks)</option>
+              <option>Medium (500-2000 bricks)</option>
+              <option>Large (2000-5000 bricks)</option>
+              <option>Iconic (5000+ bricks)</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-sm text-yellow-300 block mb-1">Style</label>
+            <select id="b-style" class="w-full bg-yellow-900/30 border border-yellow-700 rounded-xl px-3 py-2 text-sm">
+              <option>Classic LEGO</option>
+              <option>Creator Expert</option>
+              <option>Technic</option>
+              <option>Architecture</option>
+              <option>Modular</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="text-sm text-yellow-300 block mb-1">Difficulty</label>
+          <select id="b-difficulty" class="w-full bg-yellow-900/30 border border-yellow-700 rounded-xl px-3 py-2 text-sm">
+            <option>Beginner (Ages 8+)</option>
+            <option>Intermediate (Ages 12+)</option>
+            <option>Advanced (Ages 16+)</option>
+            <option>Expert (Ages 18+)</option>
+          </select>
+        </div>
+        <div>
+          <label class="text-sm text-yellow-300 block mb-1">Color palette</label>
+          <input id="b-colors" type="text" placeholder="e.g. Red, white, blue — or leave blank for auto" class="w-full bg-yellow-900/30 border border-yellow-700 rounded-xl px-3 py-2 text-sm"/>
+        </div>
+        <button onclick="brickify()" class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-black py-3 rounded-xl text-lg">🧱 Brickify It!</button>
+      </div>
+      <div id="brickify-result" class="bg-yellow-900/20 border border-yellow-800 rounded-xl p-5 min-h-64">
+        <p class="text-yellow-500 text-sm">Your LEGO instructions will appear here... 🧱</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GALLERY -->
+<div id="tab-gallery" class="p-6 hidden">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Community Projects 🏗️</h1>
+  </div>
+  <div id="gallery-grid" class="grid grid-cols-3 gap-4"></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div id="tab-instructions" class="p-6 hidden">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold mb-6">How Brickify Works 🔧</h1>
+    <div class="space-y-4">
+      <div class="bg-yellow-900/30 border border-yellow-800 rounded-xl p-5 flex gap-4">
+        <div class="w-10 h-10 bg-yellow-400 text-black rounded-lg flex items-center justify-center font-black text-lg flex-shrink-0">1</div>
+        <div><h3 class="font-bold mb-1">Describe your subject</h3><p class="text-yellow-200 text-sm">Tell us what you want to build — a building, a character, a vehicle, or anything else.</p></div>
+      </div>
+      <div class="bg-yellow-900/30 border border-yellow-800 rounded-xl p-5 flex gap-4">
+        <div class="w-10 h-10 bg-yellow-400 text-black rounded-lg flex items-center justify-center font-black text-lg flex-shrink-0">2</div>
+        <div><h3 class="font-bold mb-1">AI generates the blueprint</h3><p class="text-yellow-200 text-sm">Our AI analyzes your input and creates a complete LEGO-compatible building guide with brick list, steps, and tips.</p></div>
+      </div>
+      <div class="bg-yellow-900/30 border border-yellow-800 rounded-xl p-5 flex gap-4">
+        <div class="w-10 h-10 bg-yellow-400 text-black rounded-lg flex items-center justify-center font-black text-lg flex-shrink-0">3</div>
+        <div><h3 class="font-bold mb-1">Build and share</h3><p class="text-yellow-200 text-sm">Follow the instructions, build your creation, and share it with the community!</p></div>
+      </div>
+      <div class="bg-yellow-900/30 border border-yellow-800 rounded-xl p-5 flex gap-4">
+        <div class="w-10 h-10 bg-yellow-400 text-black rounded-lg flex items-center justify-center font-black text-lg flex-shrink-0">🧱</div>
+        <div><h3 class="font-bold mb-1">Pro version coming soon</h3><p class="text-yellow-200 text-sm">Upload photos, get 3D models, order custom brick kits directly. All powered by Brickify Pro.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://nmulrsbqdeqokvrybapn.supabase.co';
+const SUPABASE_KEY='%%SUPABASE_ANON_KEY%%';
+const GROQ_KEY='%%GROQ_KEY%%';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+
+function showTab(tab){
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(btn=>{btn.classList.remove('bg-yellow-500','text-black','font-bold');btn.classList.add('text-yellow-300');});
+  const a=document.querySelector(`[data-tab="${tab}"]`);a.classList.add('bg-yellow-500','text-black','font-bold');a.classList.remove('text-yellow-300');
+  if(tab==='gallery')loadGallery();
+}
+
+async function brickify(){
+  const desc=document.getElementById('b-description').value,scale=document.getElementById('b-scale').value,style=document.getElementById('b-style').value,difficulty=document.getElementById('b-difficulty').value,colors=document.getElementById('b-colors').value;
+  const el=document.getElementById('brickify-result');
+  if(!desc.trim()){el.innerHTML='<p class="text-red-400">Please describe what you want to build!</p>';return;}
+  el.innerHTML='<p class="text-yellow-400 animate-pulse">🧱 Generating your LEGO blueprint...</p>';
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':`Bearer ${GROQ_KEY}`,'Content-Type':'application/json'},body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:`You are a master LEGO designer. Create a complete LEGO building guide for:\n\nSubject: ${desc}\nScale: ${scale}\nStyle: ${style}\nDifficulty: ${difficulty}\nColors: ${colors||'Auto-select best colors'}\n\nProvide:\n1. Project Name & Overview\n2. Estimated brick count and main brick types needed\n3. Color palette (specific LEGO color names)\n4. Building stages (5-7 stages with descriptions)\n5. Key building techniques to use\n6. Tips for stability and detail\n7. Estimated build time\n\nBe creative, specific, and inspiring!`}],max_tokens:800})});
+  const data=await res.json();
+  const text=data.choices[0].message.content;
+  el.innerHTML=`<pre class="whitespace-pre-wrap text-sm text-yellow-100 font-sans">${text}</pre>`;
+  await sb.from('brickify_projects').insert([{description:desc,scale,style,difficulty,blueprint:text}]);
+}
+
+async function loadGallery(){
+  const{data}=await sb.from('brickify_projects').select('*').order('created_at',{ascending:false}).limit(12);
+  document.getElementById('gallery-grid').innerHTML=(data||[]).map(p=>`
+    <div class="bg-yellow-900/30 border border-yellow-800 rounded-xl p-5">
+      <h3 class="font-bold mb-1">🧱 ${p.description.substring(0,40)}${p.description.length>40?'...':''}</h3>
+      <div class="flex gap-2 mb-3">
+        <span class="text-xs bg-yellow-800 text-yellow-300 px-2 py-0.5 rounded">${p.scale}</span>
+        <span class="text-xs bg-yellow-800 text-yellow-300 px-2 py-0.5 rounded">${p.style}</span>
+      </div>
+      <p class="text-xs text-yellow-400">${new Date(p.created_at).toLocaleDateString()}</p>
+    </div>`).join('')||'<p class="text-yellow-500 col-span-3">No projects yet. Be the first to Brickify something!</p>';
+}
+
+loadGallery();
+</script>
+</body>
+</html>
