@@ -2,220 +2,240 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brickify Home — Turn Photos into LEGO</title>
+<title>Brickify Home — Turn Ideas into LEGO</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-  body{font-family:'Inter',system-ui,sans-serif;background:#0c0a00;color:#e2e8f0}
-  .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)}
-  .gradient-text{background:linear-gradient(135deg,#f59e0b,#ef4444,#f97316);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .btn{background:linear-gradient(135deg,#f59e0b,#ef4444);border:none;padding:12px 28px;border-radius:10px;cursor:pointer;font-weight:700;color:white;transition:all .2s}
-  .btn:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(245,158,11,.4)}
-  input,textarea,select{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:10px 14px;color:#e2e8f0;width:100%}
-  input:focus,textarea:focus,select:focus{outline:none;border-color:#f59e0b}
-  .brick-card{background:linear-gradient(145deg,rgba(245,158,11,.07),rgba(239,68,68,.04));border:1px solid rgba(245,158,11,.2);border-radius:16px;padding:20px;transition:all .3s}
-  .brick-card:hover{border-color:rgba(245,158,11,.5);transform:translateY(-2px)}
-  .lego-dot{width:16px;height:16px;border-radius:50%;display:inline-block;box-shadow:0 2px 4px rgba(0,0,0,.5)}
-  .difficulty-badge{padding:3px 12px;border-radius:999px;font-size:11px;font-weight:700}
-  .tab-active{background:rgba(245,158,11,.2);border-bottom:2px solid #f59e0b}
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap');
+*{font-family:'Lexend',sans-serif;box-sizing:border-box;margin:0;padding:0}
+body{background:#1c1c1c;color:#f5f5f0;min-height:100vh}
+.lego-header{background:#f0c015;padding:20px 48px;display:flex;align-items:center;justify-content:space-between}
+.lego-logo{font-size:28px;font-weight:900;color:#1c1c1c;letter-spacing:-1px}
+.lego-logo span{color:#d40000}
+.stud{width:16px;height:16px;background:#d4a312;border-radius:50%;box-shadow:0 2px 0 #b8900f inset;display:inline-block}
+.stud-row{display:flex;gap:6px;margin-bottom:8px}
+.hero-section{background:#2a2a2a;padding:56px 48px;position:relative;overflow:hidden}
+.hero-bg-bricks{position:absolute;top:0;right:0;bottom:0;width:300px;opacity:.06;background-image:repeating-linear-gradient(0deg,transparent,transparent 20px,rgba(255,255,255,.1) 20px,rgba(255,255,255,.1) 22px),repeating-linear-gradient(90deg,transparent,transparent 20px,rgba(255,255,255,.1) 20px,rgba(255,255,255,.1) 22px);pointer-events:none}
+.hero-title{font-size:48px;font-weight:900;color:#f5f5f0;line-height:1.1;max-width:520px}
+.hero-title .y{color:#f0c015}
+.tabs-row{display:flex;gap:0;background:#252525;border-bottom:1px solid #333}
+.tab{padding:16px 28px;font-size:14px;font-weight:700;cursor:pointer;color:#888;border-bottom:3px solid transparent;transition:all .2s;letter-spacing:.2px}
+.tab:hover{color:#f5f5f0}
+.tab.active{color:#f0c015;border-bottom-color:#f0c015}
+.content{padding:36px 48px 60px;max-width:1100px}
+.panel{display:none}.panel.active{display:block}
+.blueprint-card{background:#252525;border:1.5px solid #333;border-radius:16px;overflow:hidden;transition:all .3s}
+.blueprint-card:hover{border-color:#f0c015;transform:translateY(-3px);box-shadow:0 10px 28px rgba(240,192,21,.12)}
+.bc-thumb{height:100px;display:flex;align-items:center;justify-content:center;font-size:56px;position:relative}
+.bc-body{padding:16px 18px}
+.piece-badge{background:#f0c015;color:#1c1c1c;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;position:absolute;top:10px;right:10px}
+label{font-size:11px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:4px;margin-top:14px}
+input,select,textarea{background:#1c1c1c;border:1.5px solid #333;border-radius:9px;padding:10px 13px;color:#f5f5f0;width:100%;font-size:14px;outline:none;transition:border .2s;font-family:'Lexend',sans-serif}
+input:focus,select:focus,textarea:focus{border-color:#f0c015}
+select option{background:#1c1c1c}
+.btn-yellow{background:#f0c015;color:#1c1c1c;border:none;padding:12px 24px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;transition:all .2s;font-family:'Lexend',sans-serif}
+.btn-yellow:hover{background:#e0b010;transform:translateY(-1px);box-shadow:0 6px 18px rgba(240,192,21,.3)}
+.btn-dark{background:#333;color:#f5f5f0;border:none;padding:11px 20px;border-radius:10px;font-weight:600;font-size:14px;cursor:pointer;font-family:'Lexend',sans-serif;transition:all .2s}
+.btn-dark:hover{background:#444}
+.form-section{background:#252525;border:1.5px solid #333;border-radius:16px;padding:28px;margin-bottom:24px;display:none}
+.form-section.open{display:block}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.bp-output{background:#1c1c1c;border:1.5px solid #333;border-radius:12px;padding:22px;min-height:300px;font-size:14px;line-height:1.8;color:#f5f5f0;overflow-y:auto;max-height:420px}
+.color-swatch{width:32px;height:32px;border-radius:6px;border:2px solid #444;cursor:pointer;transition:all .2s}
+.color-swatch:hover{transform:scale(1.2);border-color:#f0c015}
+.stat-pill{background:#333;border-radius:8px;padding:10px 16px;text-align:center;display:inline-block}
+.projects-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 </style>
 </head>
 <body>
-<nav class="glass sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
-  <div class="flex items-center gap-3">
-    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-500 to-red-500 flex items-center justify-center text-xl">🧱</div>
-    <div><h1 class="font-black text-xl gradient-text">Brickify Home</h1><p class="text-xs text-slate-400">Turn any photo into a LEGO project</p></div>
-  </div>
-  <div class="flex gap-2">
-    <button onclick="showTab('create')" id="tab-create" class="px-4 py-2 rounded-lg text-sm font-medium tab-active transition-all">🧱 Create</button>
-    <button onclick="showTab('projects')" id="tab-projects" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">📁 Projects</button>
-    <button onclick="showTab('pro')" id="tab-pro" class="px-4 py-2 rounded-lg text-sm font-medium transition-all">⚡ Pro Tools</button>
-  </div>
-</nav>
 
-<div class="max-w-5xl mx-auto px-6 py-8">
+<div class="lego-header">
+  <div>
+    <div class="stud-row"><div class="stud"></div><div class="stud"></div><div class="stud"></div><div class="stud"></div><div class="stud"></div></div>
+    <div class="lego-logo">BRICK<span>IFY</span> <span style="font-weight:400;font-size:20px">Home</span></div>
+  </div>
+  <div style="display:flex;gap:10px">
+    <div style="background:rgba(28,28,28,.2);border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;color:#1c1c1c"><span id="proj-count">0</span> blueprints</div>
+  </div>
+</div>
+
+<div class="hero-section">
+  <div class="hero-bg-bricks"></div>
+  <div style="position:relative;z-index:1">
+    <div style="font-size:12px;font-weight:700;color:#f0c015;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px">AI Blueprint Generator</div>
+    <h1 class="hero-title">Turn any idea<br>into a <span class="y">LEGO</span> masterpiece.</h1>
+    <p style="color:#888;font-size:16px;margin-top:12px;max-width:440px">Describe your idea — AI designs the full LEGO blueprint with piece count, color palette, and build instructions.</p>
+  </div>
+</div>
+
+<div class="tabs-row">
+  <div class="tab active" onclick="showTab('create')" id="tab-create">🧱 Create Blueprint</div>
+  <div class="tab" onclick="showTab('projects')" id="tab-projects">📁 My Projects</div>
+  <div class="tab" onclick="showTab('tools')" id="tab-tools">⚙️ Pro Tools</div>
+</div>
+
+<div class="content">
 
   <!-- CREATE -->
-  <div id="panel-create">
-    <div class="text-center mb-10">
-      <div class="text-6xl mb-4">🧱</div>
-      <h2 class="text-4xl font-black gradient-text mb-3">Turn anything into LEGO</h2>
-      <p class="text-slate-400 text-lg">Describe your idea — AI designs your custom LEGO project</p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-8">
-      <div class="glass rounded-2xl p-6 space-y-4">
-        <h3 class="font-bold text-lg mb-4"><i class="fas fa-camera text-amber-400 mr-2"></i>Your Idea</h3>
-        <div>
-          <label class="text-xs text-slate-400 mb-1 block">What do you want to LEGO-fy? *</label>
-          <textarea id="b-desc" rows="3" placeholder="e.g. My house exterior, a portrait of my dog, the Colosseum in Rome, my favorite car..."></textarea>
-        </div>
-        <div class="grid grid-cols-2 gap-3">
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Scale / Size</label>
-            <select id="b-scale">
-              <option>Micro (200-500 pieces)</option>
-              <option>Small (500-1000 pieces)</option>
-              <option>Medium (1000-2500 pieces)</option>
-              <option>Large (2500-5000 pieces)</option>
-              <option>Epic (5000+ pieces)</option>
-            </select>
+  <div id="panel-create" class="panel active">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px">
+      <div>
+        <div style="background:#252525;border:1.5px solid #333;border-radius:16px;padding:28px;margin-bottom:18px">
+          <div style="font-size:17px;font-weight:800;margin-bottom:18px;color:#f0c015">Describe Your Idea</div>
+          <label>What do you want to build? *</label>
+          <textarea id="b-desc" rows="3" placeholder="e.g. My house exterior with garden, a portrait of my dog Buddy, the Pantheon in Rome, my Ferrari..."></textarea>
+          <div class="g2" style="margin-bottom:4px">
+            <div><label>Scale</label>
+              <select id="b-scale"><option>Micro (200-500 pieces)</option><option>Small (500-1000)</option><option selected>Medium (1000-2500)</option><option>Large (2500-5000)</option><option>Epic (5000+)</option></select>
+            </div>
+            <div><label>Style</label>
+              <select id="b-style"><option>Realistic</option><option>Mosaic / Flat art</option><option>Architecture</option><option>Character</option><option>Diorama</option></select>
+            </div>
           </div>
-          <div>
-            <label class="text-xs text-slate-400 mb-1 block">Style</label>
-            <select id="b-style">
-              <option>Realistic / Detailed</option>
-              <option>Mosaic / Flat art</option>
-              <option>Architecture</option>
-              <option>Character / Figure</option>
-              <option>Vehicle / Machine</option>
-              <option>Landscape / Diorama</option>
-            </select>
+          <div><label>Difficulty Level</label>
+            <select id="b-diff"><option>Beginner (6+)</option><option>Intermediate (12+)</option><option>Expert (16+)</option><option>Master Builder</option></select>
           </div>
         </div>
-        <div>
-          <label class="text-xs text-slate-400 mb-1 block">Skill Level</label>
-          <select id="b-difficulty">
-            <option>Beginner (6+)</option>
-            <option>Intermediate (12+)</option>
-            <option>Expert (16+)</option>
-            <option>Master Builder (18+)</option>
-          </select>
-        </div>
-        <button onclick="generateBrick()" class="btn w-full text-lg">
-          <i class="fas fa-cube mr-2"></i>Generate LEGO Blueprint
-        </button>
+        <button class="btn-yellow" style="width:100%;padding:16px;font-size:16px" onclick="generateBrick()">🧱 Generate Blueprint</button>
       </div>
 
-      <div class="glass rounded-2xl p-6 flex flex-col">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="font-bold text-lg gradient-text">LEGO Blueprint</h3>
-          <button id="save-btn" onclick="saveProject()" class="hidden px-3 py-1.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg hover:bg-amber-500/30 transition-colors">
-            <i class="fas fa-save mr-1"></i>Save Project
-          </button>
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:15px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px">Blueprint</div>
+          <button id="save-bp-btn" style="display:none" onclick="saveBP()" class="btn-dark">💾 Save Project</button>
         </div>
-        <div id="brick-result" class="flex-1 text-slate-400 flex flex-col items-center justify-center text-center">
-          <span class="text-6xl mb-4 opacity-30">🧱</span>
-          <p>Describe your idea to get a LEGO blueprint</p>
+        <div class="bp-output" id="bp-out">
+          <div style="color:#555;text-align:center;padding:60px 0">
+            <div style="font-size:64px;margin-bottom:14px">🧱</div>
+            <div style="font-size:15px">Describe your idea and hit Generate</div>
+          </div>
+        </div>
+        <div id="color-palette" style="margin-top:14px;display:none">
+          <div style="font-size:12px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Detected Colors</div>
+          <div id="color-swatches" style="display:flex;gap:8px;flex-wrap:wrap"></div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- PROJECTS -->
-  <div id="panel-projects" class="hidden">
-    <div class="flex justify-between items-center mb-6">
-      <div><h2 class="text-2xl font-bold">My Projects</h2><p class="text-slate-400 text-sm">Your saved LEGO blueprints</p></div>
+  <div id="panel-projects" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px">
+      <h2 style="font-size:22px;font-weight:800">My LEGO Projects 📁</h2>
+      <button class="btn-yellow" onclick="showTab('create')">+ New Blueprint</button>
     </div>
-    <div id="projects-list" class="grid grid-cols-2 gap-5"></div>
+    <div class="projects-grid" id="projects-grid"></div>
   </div>
 
   <!-- PRO TOOLS -->
-  <div id="panel-pro" class="hidden">
-    <div class="mb-6"><h2 class="text-2xl font-bold">Pro Builder Tools</h2><p class="text-slate-400 text-sm">Advanced LEGO planning features</p></div>
-    <div class="grid grid-cols-2 gap-6">
-      <div class="glass rounded-2xl p-6 space-y-4">
-        <h3 class="font-semibold gradient-text"><i class="fas fa-calculator mr-2"></i>Parts Cost Estimator</h3>
-        <div><label class="text-xs text-slate-400 mb-1 block">Number of Pieces</label><input id="pro-pieces" type="number" placeholder="1500"></div>
-        <div><label class="text-xs text-slate-400 mb-1 block">Piece Complexity</label>
-          <select id="pro-complex"><option>Basic (2x4, 1x2...)</option><option>Mixed (slopes, curves)</option><option>Complex (technic, rare)</option></select>
-        </div>
-        <div><label class="text-xs text-slate-400 mb-1 block">Color Count</label><input id="pro-colors" type="number" placeholder="12"></div>
-        <button onclick="estimateCost()" class="btn w-full"><i class="fas fa-coins mr-2"></i>Estimate Cost</button>
-        <div id="cost-result" class="glass rounded-xl p-4 text-center hidden">
-          <div class="text-3xl font-black text-amber-400" id="cost-value">€0</div>
-          <div class="text-xs text-slate-400 mt-1">Estimated parts cost</div>
-          <div class="text-xs text-slate-500 mt-1" id="cost-detail"></div>
+  <div id="panel-tools" class="panel">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+      <div style="background:#252525;border:1.5px solid #333;border-radius:16px;padding:24px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:18px;color:#f0c015">💰 Cost Estimator</div>
+        <label>Number of Pieces</label><input id="ce-pieces" type="number" placeholder="1500">
+        <label>Complexity</label>
+        <select id="ce-complex"><option>Basic (2x4, 1x2...)</option><option>Mixed (slopes, curves)</option><option>Complex (technic, rare)</option></select>
+        <label>Number of Different Colors</label><input id="ce-colors" type="number" placeholder="10">
+        <button class="btn-yellow" style="width:100%;margin-top:16px;padding:13px" onclick="estimateCost()">Calculate Cost</button>
+        <div id="cost-out" style="display:none;text-align:center;margin-top:20px">
+          <div style="font-size:40px;font-weight:900;color:#f0c015" id="cost-val">€0</div>
+          <div style="font-size:13px;color:#888;margin-top:4px" id="cost-detail"></div>
         </div>
       </div>
-
-      <div class="glass rounded-2xl p-6 space-y-4">
-        <h3 class="font-semibold gradient-text"><i class="fas fa-palette mr-2"></i>Color Palette Generator</h3>
-        <div><label class="text-xs text-slate-400 mb-1 block">Main Subject Colors</label><input id="pal-colors" placeholder="e.g. sunset orange, dark blue sky, golden sand"></div>
-        <div><label class="text-xs text-slate-400 mb-1 block">Style</label>
-          <select id="pal-style"><option>Realistic</option><option>Vibrant</option><option>Monochrome</option><option>Pastel</option></select>
-        </div>
-        <button onclick="generatePalette()" class="btn w-full"><i class="fas fa-palette mr-2"></i>Generate Palette</button>
-        <div id="palette-result" class="space-y-2 hidden"></div>
+      <div style="background:#252525;border:1.5px solid #333;border-radius:16px;padding:24px">
+        <div style="font-size:16px;font-weight:800;margin-bottom:18px;color:#f0c015">🎨 LEGO Color Palette AI</div>
+        <label>Describe your subject's colors</label>
+        <textarea id="pal-in" rows="3" placeholder="Orange sunset sky, dark blue ocean, golden sand beach..."></textarea>
+        <button class="btn-yellow" style="width:100%;margin-top:14px;padding:13px" onclick="genPalette()">Generate LEGO Palette</button>
+        <div id="pal-out" style="margin-top:16px;font-size:13px;line-height:1.8;color:#ccc"></div>
       </div>
     </div>
   </div>
+
 </div>
 
-<div id="toast" class="fixed bottom-6 right-6 px-6 py-3 rounded-xl font-semibold hidden z-50 text-white"></div>
-
 <script>
-const SUPABASE_URL='https://nmulrsbqdeqokvrybapn.supabase.co'
-const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tdWxyc2JxZGVxb2t2cnliYXBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODY0NDcsImV4cCI6MjA5NDg2MjQ0N30.iGN_OGVkw0j3VCEi9qUroMbpT37P3UPRUf1cYyqFBys'
-const GROQ_KEY='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'
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_KEY)
-let lastBlueprint='',lastPieces=0
+const SB=supabase.createClient('https://nmulrsbqdeqokvrybapn.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5tdWxyc2JxZGVxb2t2cnliYXBuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODY0NDcsImV4cCI6MjA5NDg2MjQ0N30.iGN_OGVkw0j3VCEi9qUroMbpT37P3UPRUf1cYyqFBys')
+const GROQ='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'
+let lastBP='',lastPieces=0
 
-function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`fixed bottom-6 right-6 px-6 py-3 rounded-xl font-semibold z-50 text-white ${type==='error'?'bg-red-600':'bg-amber-600'}`;setTimeout(()=>t.classList.add('hidden'),3000)}
-function showTab(tab){['create','projects','pro'].forEach(t=>{document.getElementById(`panel-${t}`).classList.add('hidden');document.getElementById(`tab-${t}`).classList.remove('tab-active')});document.getElementById(`panel-${tab}`).classList.remove('hidden');document.getElementById(`tab-${tab}`).classList.add('tab-active');if(tab==='projects')loadProjects()}
+function showTab(t){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(n=>n.classList.remove('active'));document.getElementById('panel-'+t).classList.add('active');document.getElementById('tab-'+t).classList.add('active');if(t==='projects')loadProjects()}
 
-async function generateBrick(){
-  const desc=document.getElementById('b-desc').value,scale=document.getElementById('b-scale').value,style=document.getElementById('b-style').value,diff=document.getElementById('b-difficulty').value
-  if(!desc){showToast('Describe your idea first','error');return}
-  const el=document.getElementById('brick-result')
-  el.innerHTML='<div class="text-4xl animate-bounce mb-4">🧱</div><p class="text-amber-400 animate-pulse">Building your blueprint...</p>'
-  try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:1000,messages:[{role:'user',content:`You are a master LEGO designer. Create a detailed LEGO project blueprint.\n\nIdea: ${desc}\nScale: ${scale}\nStyle: ${style}\nDifficulty: ${diff}\n\nProvide:\n1. 🧱 PROJECT NAME\n2. 📊 STATS: Piece count estimate, dimensions (cm), build time\n3. 🎨 COLOR PALETTE: List 6-8 main LEGO colors needed\n4. 🏗️ BUILD STRUCTURE: Main sections/modules to build\n5. 🔧 KEY TECHNIQUES: Special building techniques required\n6. 💡 PRO TIPS: 2-3 tips for this specific build\n7. 💰 ESTIMATED COST: Rough price range for parts\n\nBe specific and creative. Make it sound exciting!`}]})})
-    const data=await res.json()
-    const text=data.choices?.[0]?.message?.content||''
-    lastBlueprint=text
-    const pMatch=text.match(/(\d[\d,]+)\s*piece/i)
-    if(pMatch)lastPieces=parseInt(pMatch[1].replace(',',''))
-    el.innerHTML=`<div class="text-sm text-slate-300 text-left whitespace-pre-line leading-relaxed">${text.replace(/\*\*(.*?)\*\*/g,'<strong class="text-amber-300">$1</strong>').replace(/\n/g,'<br>')}</div>`
-    document.getElementById('save-btn').classList.remove('hidden')
-    showToast('🧱 Blueprint ready!')
-  }catch(e){el.innerHTML='<p class="text-red-400">Error: '+e.message+'</p>'}
+const thumbBgs={Realistic:'linear-gradient(135deg,#1a1a2e,#16213e)',Mosaic:'linear-gradient(135deg,#f0c015,#d40000)',Architecture:'linear-gradient(135deg,#2d2d2d,#4a4a4a)',Character:'linear-gradient(135deg,#1a472a,#2d6a4f)',Diorama:'linear-gradient(135deg,#03045e,#0077b6)'}
+const thumbEmojis={Realistic:'🏗️',Mosaic:'🎨',Architecture:'🏛️',Character:'🧑',Diorama:'🌄'}
+
+async function seedData(){
+  const{data}=await SB.from('brickify_projects').select('id').limit(1)
+  if(data?.length)return
+  await SB.from('brickify_projects').insert([
+    {description:'The Colosseum in Rome',scale:'Large (2500-5000)',style:'Architecture',difficulty:'Expert (16+)',piece_count:3742,blueprint:'PROJECT: Roman Colosseum\n\nPIECE COUNT: ~3,742\nDIMENSIONS: 45cm × 40cm × 18cm\nBUILD TIME: 18-22 hours\n\nCOLOR PALETTE: Tan, Dark Tan, Light Bluish Gray, Dark Bluish Gray, Sand Yellow\n\nKEY TECHNIQUES: SNOT (Studs Not On Top), arch construction, curved wall sections',status:'Draft'},
+    {description:'My German Shepherd "Rex"',scale:'Medium (1000-2500)',style:'Realistic',difficulty:'Intermediate (12+)',piece_count:1284,blueprint:'PROJECT: Dog Portrait — Rex\n\nPIECE COUNT: ~1,284\nDIMENSIONS: 25cm × 20cm × 30cm\nBUILD TIME: 8-10 hours\n\nCOLOR PALETTE: Tan, Dark Tan, Black, White, Medium Nougat\n\nKEY TECHNIQUES: Minifig-scale detailing, organic shapes',status:'Draft'},
+  ])
 }
 
-async function saveProject(){
-  const d={description:document.getElementById('b-desc').value,scale:document.getElementById('b-scale').value,style:document.getElementById('b-style').value,difficulty:document.getElementById('b-difficulty').value,blueprint:lastBlueprint.substring(0,800),piece_count:lastPieces||null,status:'Draft'}
-  const{error}=await sb.from('brickify_projects').insert(d)
-  if(error){showToast('Error: '+error.message,'error');return}
-  showToast('✅ Project saved!');document.getElementById('save-btn').classList.add('hidden')
+async function generateBrick(){
+  const desc=document.getElementById('b-desc').value,scale=document.getElementById('b-scale').value,style=document.getElementById('b-style').value,diff=document.getElementById('b-diff').value
+  if(!desc.trim()){alert('Describe your idea first!');return}
+  const out=document.getElementById('bp-out')
+  out.innerHTML='<div style="color:#f0c015;text-align:center;padding:40px"><div style="font-size:48px;margin-bottom:14px;animation:pulse 1s infinite">🧱</div><div>Building your blueprint...</div></div>'
+  try{
+    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:900,messages:[{role:'user',content:`You are a master LEGO designer. Create a detailed blueprint.\n\nIdea: ${desc}\nScale: ${scale}\nStyle: ${style}\nDifficulty: ${diff}\n\n**PROJECT NAME:**\n\n**SPECS:**\n- Piece count: ~X pieces\n- Dimensions: Xcm × Xcm × Xcm\n- Build time: X-Y hours\n- Estimated cost: €X-Y\n\n**COLOR PALETTE (6-8 LEGO colors):**\n- Color Name: use case\n\n**BUILD STRUCTURE (main sections):**\n1. Section name: description\n2...\n\n**KEY TECHNIQUES:**\n- technique: why\n\n**PRO TIPS:**\n1.\n2.\n\n**DIFFICULTY NOTES:** ...\n\nBe specific and creative!`}]})})
+    const d=await res.json()
+    const text=d.choices?.[0]?.message?.content||''
+    lastBP=text
+    const m=text.match(/(\d[\d,]+)\s*piece/i)
+    if(m)lastPieces=parseInt(m[1].replace(',',''))
+    out.innerHTML=`<div style="font-size:14px;line-height:1.8">${text.replace(/\*\*(.*?)\*\*/g,'<strong style="color:#f0c015">$1</strong>').replace(/\n/g,'<br>')}</div>`
+    document.getElementById('save-bp-btn').style.display='block'
+  }catch(e){out.innerHTML='<div style="color:red">Error: '+e.message+'</div>'}
+}
+
+async function saveBP(){
+  const d={description:document.getElementById('b-desc').value,scale:document.getElementById('b-scale').value,style:document.getElementById('b-style').value,difficulty:document.getElementById('b-diff').value,blueprint:lastBP.substring(0,700),piece_count:lastPieces||null,status:'Draft'}
+  await SB.from('brickify_projects').insert(d);document.getElementById('save-bp-btn').style.display='none';showTab('projects')
 }
 
 async function loadProjects(){
-  const{data}=await sb.from('brickify_projects').select('*').order('created_at',{ascending:false})
-  const list=document.getElementById('projects-list')
-  if(!data?.length){list.innerHTML='<div class="col-span-2 glass rounded-xl p-8 text-center text-slate-400"><span class="text-4xl block mb-3">🧱</span>No projects saved yet</div>';return}
-  const diffColor={Draft:'bg-slate-500/20 text-slate-300','In Progress':'bg-amber-500/20 text-amber-300',Complete:'bg-green-500/20 text-green-300'}
-  list.innerHTML=data.map(p=>`<div class="brick-card"><div class="flex justify-between items-start mb-3"><div><h3 class="font-bold">${p.description?.substring(0,40)+'...' || 'LEGO Project'}</h3><p class="text-sm text-amber-400 mt-0.5">${p.style||'Custom'} · ${p.scale||'Medium'}</p></div><div class="flex items-center gap-2"><span class="text-xs px-2 py-1 rounded-full ${diffColor[p.status]||'bg-slate-500/20 text-slate-300'}">${p.status}</span><button onclick="deleteRec('brickify_projects','${p.id}',loadProjects)" class="text-slate-600 hover:text-red-400"><i class="fas fa-trash text-sm"></i></button></div></div>${p.piece_count?`<div class="flex gap-3 text-sm"><span class="text-amber-400 font-bold"><i class="fas fa-cube mr-1"></i>${p.piece_count.toLocaleString()} pieces</span></div>`:''}<p class="text-xs text-slate-500 mt-3">${p.blueprint?.substring(0,150)||''}...</p></div>`).join('')
+  const{data}=await SB.from('brickify_projects').select('*').order('created_at',{ascending:false})
+  document.getElementById('proj-count').textContent=data?.length||0
+  const grid=document.getElementById('projects-grid')
+  if(!data?.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:#555;padding:48px">No projects yet — create your first blueprint!</div>';return}
+  grid.innerHTML=data.map(p=>`<div class="blueprint-card">
+    <div class="bc-thumb" style="background:${thumbBgs[p.style]||'linear-gradient(135deg,#2a2a2a,#3a3a3a)'}">
+      <span>${thumbEmojis[p.style]||'🧱'}</span>
+      ${p.piece_count?`<span class="piece-badge">${p.piece_count.toLocaleString()} pcs</span>`:''}
+    </div>
+    <div class="bc-body">
+      <div style="font-weight:800;font-size:15px;margin-bottom:4px">${p.description?.substring(0,40)||'LEGO Project'}</div>
+      <div style="font-size:12px;color:#888;margin-bottom:10px">${p.style||'Custom'} · ${p.scale||'Medium'} · ${p.difficulty||'Intermediate'}</div>
+      <div style="background:#1c1c1c;border-radius:8px;padding:10px;font-size:12px;color:#888;line-height:1.5">${(p.blueprint||'').substring(0,120)}...</div>
+    </div>
+  </div>`).join('')
 }
 
 function estimateCost(){
-  const pieces=parseInt(document.getElementById('pro-pieces').value)||0,complex=document.getElementById('pro-complex').value,colors=parseInt(document.getElementById('pro-colors').value)||8
-  if(!pieces){showToast('Enter piece count','error');return}
-  const basePrice=complex.includes('Basic')?0.08:complex.includes('Mixed')?0.12:0.18
-  const colorPremium=colors>15?1.3:colors>10?1.15:1
-  const total=Math.round(pieces*basePrice*colorPremium)
-  const el=document.getElementById('cost-result')
-  el.classList.remove('hidden')
-  document.getElementById('cost-value').textContent='€'+total.toLocaleString()
-  document.getElementById('cost-detail').textContent=`${pieces.toLocaleString()} pieces × €${basePrice}/avg · ${colors} colors`
+  const pieces=parseInt(document.getElementById('ce-pieces').value)||0,complex=document.getElementById('ce-complex').value,colors=parseInt(document.getElementById('ce-colors').value)||8
+  if(!pieces)return
+  const base=complex.includes('Basic')?.08:complex.includes('Mixed')?.12:.18
+  const total=Math.round(pieces*base*(colors>15?1.3:colors>10?1.15:1))
+  document.getElementById('cost-out').style.display='block'
+  document.getElementById('cost-val').textContent='€'+total.toLocaleString()
+  document.getElementById('cost-detail').textContent=`${pieces.toLocaleString()} pieces × €${base.toFixed(2)}/avg · ${colors} colors`
 }
 
-async function generatePalette(){
-  const colors=document.getElementById('pal-colors').value,style=document.getElementById('pal-style').value
-  if(!colors){showToast('Describe colors','error');return}
-  const el=document.getElementById('palette-result')
-  el.classList.remove('hidden')
-  el.innerHTML='<p class="text-amber-400 animate-pulse text-sm">Generating palette...</p>'
-  try{
-    const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:400,messages:[{role:'user',content:`Create a LEGO color palette for: ${colors} (${style} style).\nList 6-8 exact LEGO brick colors available in the real LEGO catalog (e.g. "Bright Red", "Dark Azure", "Tan").\nFor each color: name, hex code, best use in this build.\nFormat: COLOR_NAME | #hexcode | use case`}]})})
-    const data=await res.json()
-    const text=data.choices?.[0]?.message?.content||''
-    const lines=text.split('\n').filter(l=>l.includes('|'))
-    el.innerHTML=lines.map(line=>{const parts=line.split('|');const hex=(parts[1]||'#888').trim();const name=(parts[0]||'').trim();const use=(parts[2]||'').trim();return `<div class="flex items-center gap-3 glass rounded-lg p-2"><div class="w-8 h-8 rounded-lg flex-shrink-0" style="background:${hex}"></div><div><p class="text-sm font-medium">${name}</p><p class="text-xs text-slate-400">${use}</p></div></div>`}).join('')||'<p class="text-red-400 text-sm">Could not parse palette</p>'
-  }catch(e){el.innerHTML='<p class="text-red-400 text-sm">Error: '+e.message+'</p>'}
+async function genPalette(){
+  const inp=document.getElementById('pal-in').value
+  if(!inp)return
+  document.getElementById('pal-out').innerHTML='<span style="color:#f0c015">Generating palette...</span>'
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:300,messages:[{role:'user',content:`List 6 real LEGO brick colors that match: "${inp}". For each: LEGO_NAME | #hex | use case. One per line.`}]})})
+  const d=await res.json()
+  const lines=(d.choices?.[0]?.message?.content||'').split('\n').filter(l=>l.includes('|'))
+  document.getElementById('pal-out').innerHTML=lines.map(l=>{const[n,h,u]=l.split('|').map(s=>s.trim());return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div style="width:28px;height:28px;border-radius:6px;background:${h||'#888'};border:1px solid #444;flex-shrink:0"></div><div><div style="font-weight:700;font-size:13px">${n||'Color'}</div><div style="font-size:12px;color:#888">${u||''}</div></div></div>`}).join('')||'<div style="color:#888">Could not parse palette</div>'
 }
 
-async function deleteRec(table,id,reload){if(!confirm('Delete?'))return;await sb.from(table).delete().eq('id',id);reload()}
+async function init(){await seedData();loadProjects()}
+init()
 </script>
 </body>
 </html>
